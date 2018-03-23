@@ -1,0 +1,129 @@
+---
+title: "Project 1"
+author: "Dario Molina, Everet ..."
+date: "March 28, 2018"
+output: html_document
+---
+<!--
+Intro: explain what you will do in a sentence or two
+Data: Explain in a few sentence where the data comes from, what it is about, etc.
+Initial data exploration
+Data cleaning and preprocessing
+Data exploration and visualization
+Conclusions.  One paragraph about what you learned, issues you faced, etc.
+-->
+
+###Introduction
+In this project, we will look into Car Collision Report data, and analyze in detail what this data represents.  We will make graphs, to visually analyze and find patterns, make predictions, and come to a better understanding on how we can reduce the amount of car collisions.
+
+The data is obtained from dataMontgomery(https://data.montgomerycountymd.gov/Public-Safety/Crash-Reporting-Drivers-Data/mmzv-x632/data), a website that keeps records from the County of Maryland.
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(prompt=TRUE, comment="", echo=FALSE)
+```
+
+
+```{r }
+dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
+
+# while getting things working, consider using this smaller file:
+# dat = read.csv("https://raw.githubusercontent.com/grbruns/cst383/master/campaign-ca-2016-sample.csv")
+```
+
+###Data cleaning and preprocessing
+
+Changing empty blanks to 0 in Off.Road.Description, Related.Non.Motorist, Non.Motorist.Substance.Abuse columns
+```{r}
+x = c("Off.Road.Description", "Related.Non.Motorist", "Non.Motorist.Substance.Abuse")
+
+#assigning value 0 to "" in x vector
+for( i in x)
+{
+  dat[[i]][dat[[i]] == ""] = 0
+}
+
+```
+
+Removing rest of empty blanks and "N/A" in data set to N/A
+```{r}
+#assignig rest values to NA
+for(i in names(dat))
+{
+  dat[[i]][dat[[i]] == "" | dat[[i]] == "N/A"] = NA
+}
+
+```
+
+###Most Common Type of Crashes
+```{r}
+par(mar=c(3,14,2,2))
+x = table(dat$Collision.Type)
+barplot(x[x > 5000], horiz=TRUE, las=1, main="Most common types of car crash", col="firebrick")
+```
+
+###Amount of Crashes per Month
+```{r}
+#amound of crashes per month
+x =table(substr(dat$Crash.Date.Time,1,2))
+names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
+barplot(x, las = 1, col="firebrick")
+```
+
+###Most Common Types of Crashes Under Different Types of Weather
+```{r}
+z = table(dat$Weather,dat$Collision.Type)
+y= z[,c("STRAIGHT MOVEMENT ANGLE","SINGLE VEHICLE","SAME DIRECTION RIGHT TURN","SAME DIRECTION LEFT TURN","HEAD ON LEFT TURN","OTHER")]
+y = y[c("CLEAR","CLOUDY","RAINING"),]
+
+yCol = c("STRGT-MV-AGL", "ONE-CAR","SM-DIR-R-TR","SM-DIR-L-TR","HD-ON-L-TR","OTHER")
+for(i in 1:length(yCol))
+{
+  colnames(y)[i] = yCol[i]
+}
+y = y[,c("STRGT-MV-AGL","ONE-CAR","HD-ON-L-TR","OTHER")]
+par(mar=c(1,.5,2,.3))
+plot(y, col="firebrick")
+```
+
+
+###Different Types of Crashes, Most Common Report Type
+```{r}
+#Whattypes of crash types caused the most reports by category
+
+  #remove coluns from crash type 
+y = table(dat$ACRS.Report.Type, dat$Collision.Type)
+x= c("STRAIGHT MOVEMENT ANGLE","SINGLE VEHICLE","SAME DIR REAR END","OTHER","HEAD ON LEFT TURN")
+y = y[,x]
+
+yCol = c("STRGT-MV-AGL", "ONE-CAR","SM-DIR-R-ED","OTHER","HD-ON-L-TR")
+for(i in 1:length(yCol))
+{
+  colnames(y)[i] = yCol[i]
+}
+par(mar=c(0.5,2,1,2))
+plot(y, las=1,col="firebrick")
+```
+
+###Most Common Types of Crash Type based on Surface Condition
+```{r}
+#crashes by surface condition
+yCol = c("HD-ON-L-TR","OTHER","SM-DIR-R-ED","SM-DIR-SDWE","ONE-CAR","STRGT-MV-AGL")
+
+x = table(dat$Surface.Condition,dat$Collision.Type)
+
+
+cols = c("HEAD ON LEFT TURN","OTHER","SAME DIR REAR END","SAME DIRECTION SIDESWIPE","SINGLE VEHICLE","STRAIGHT MOVEMENT ANGLE")
+rows = c("DRY","WET","SNOW")
+z = x[rows,cols]
+
+for(i in 1:length(yCol))
+{
+  colnames(z)[i] = yCol[i]
+}
+
+par(mar=c(1,.01,2,.01))
+plot(z, las=1,col="firebrick")
+```
+
+
+
