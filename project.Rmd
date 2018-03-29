@@ -1,17 +1,9 @@
 ---
 title: "Project 1"
-author: "Dario Molina, Everet ..."
+author: "Dario Molina, Evert Rodriguez"
 date: "March 28, 2018"
 output: html_document
 ---
-<!--
-Intro: explain what you will do in a sentence or two
-Data: Explain in a few sentence where the data comes from, what it is about, etc.
-Initial data exploration
-Data cleaning and preprocessing
-Data exploration and visualization
-Conclusions.  One paragraph about what you learned, issues you faced, etc.
--->
 
 ###Introduction
 In this project, we will look into Car Collision Report data, and analyze in detail what this data represents.  We will make graphs, to visually analyze and find patterns, make predictions, and come to a better understanding on how we can reduce the amount of car collisions.
@@ -24,10 +16,11 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=FALSE)
 
 
 ```{r }
+#File locaiton on Dario's Macine
 dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
+#Address on Evert's Machine
+#dat = read.csv("/Users/evert/Dropbox/School/Assignments/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
 
-# while getting things working, consider using this smaller file:
-# dat = read.csv("https://raw.githubusercontent.com/grbruns/cst383/master/campaign-ca-2016-sample.csv")
 ```
 
 ###Data cleaning and preprocessing
@@ -54,6 +47,21 @@ for(i in names(dat))
 
 ```
 
+Creating a new dataframe containing incidents in which a bicyclist was involved and the driver was at fault and NOT distracted. (194 data points)
+
+```{r }
+dat_bi_daf = dat[dat$Related.Non.Motorist == "BICYCLIST" & dat$Driver.At.Fault == "Yes",]
+
+dat.sub1 <- subset(dat_bi_daf, Driver.Distracted.By == "LOOKED BUT DID NOT SEE")
+dat.sub2 <- subset(dat_bi_daf, Driver.Distracted.By == "NOT DISTRACTED")
+
+dat.sub <- rbind(dat.sub1,dat.sub2)
+
+#formating the Crash.Date.Time Column
+dat.sub$Crash.Date.Time <- as.POSIXlt(as.character(dat.sub$Crash.Date.Time), format = "%m/%d/%Y %I:%M:%S %p")
+
+```
+
 ###Most Common Type of Crashes
 ```{r}
 par(mar=c(3,14,2,2))
@@ -66,7 +74,7 @@ Before we started working with the data, we wanted to analyze from all the crash
 
 ###Amount of Crashes per Month
 ```{r}
-#amound of crashes per month
+#amount of crashes per month
 x =table(substr(dat$Crash.Date.Time,1,2))
 names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
 barplot(x, las = 1, col="firebrick")
@@ -133,7 +141,22 @@ par(mar=c(3,.01,3,.01))
 plot(z, las=1,col="firebrick", main=" ")
 ```
 
+
 We had analyzed most common crash types, when they happen the most, if weather played a big part and what were the most common report times by crash.  We also got curious if surface condition played a factor.  Based on the most crash types, what were the surface condition, and if surface condtion played a role.
 
 
+###Bicyle Accidents Over the Year
+```{r }
+par(mar=c(2,9,2,2))
+x =table(substr(dat.sub$Crash.Date.Time,1,2))
+names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
+barplot(x, las = 1, col="firebrick")
+```
 
+###Frequency of Crashes Over the Day
+```{r}
+par(mar=c(4,2.5,2,2))
+y = table(substr(dat.sub$Crash.Date.Time,12,13))
+names(y) = c("12am","1am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm")
+barplot(y,las=1,col = "firebrick")
+```
