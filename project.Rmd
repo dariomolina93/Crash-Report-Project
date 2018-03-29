@@ -58,8 +58,11 @@ for(i in names(dat))
 ```{r}
 par(mar=c(3,14,2,2))
 x = table(dat$Collision.Type)
-barplot(x[x > 5000], horiz=TRUE, las=1, main="Most common types of car crash", col="firebrick")
+barplot(x[x > 5000], horiz=TRUE, las=1, main=" ", col="firebrick")
 ```
+
+Before we started working with the data, we wanted to analyze from all the crashes what were the most common types of crashes. Based on this graph, we can analyze the data more in detail as forseen in the upcoming graphs.
+
 
 ###Amount of Crashes per Month
 ```{r}
@@ -68,6 +71,8 @@ x =table(substr(dat$Crash.Date.Time,1,2))
 names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
 barplot(x, las = 1, col="firebrick")
 ```
+
+Since we analyzed the most common types of crash types, we had curiosity to find out during what month of the year do most crashes happen. Why do most crashes happen on a specific month(s), was it due to a season? From the graph we can see January is when most crashes happen, and we came with a theory perhaps is when the new year festivities come into play.
 
 ###Most Common Types of Crashes Under Different Types of Weather
 ```{r}
@@ -81,10 +86,11 @@ for(i in 1:length(yCol))
   colnames(y)[i] = yCol[i]
 }
 y = y[,c("STRGT-MV-AGL","ONE-CAR","HD-ON-L-TR","OTHER")]
-par(mar=c(1,.5,2,.3))
-plot(y, col="firebrick")
+par(mar=c(4,.5,4,.3))
+plot(y, main=" ", col="firebrick", las=1)
 ```
 
+Figuring out which types types of crashes happen most often, and what time of the year they happen the most, we questioned if perhaps weather played a big factor, and if would there be anything surprising when analyzing the data.
 
 ###Different Types of Crashes, Most Common Report Type
 ```{r}
@@ -100,9 +106,11 @@ for(i in 1:length(yCol))
 {
   colnames(y)[i] = yCol[i]
 }
-par(mar=c(0.5,2,1,2))
-plot(y, las=1,col="firebrick")
+par(mar=c(3,2,3,2))
+plot(y, las=1,col="firebrick", main=" ")
 ```
+
+We were curious to see, what was the output of the crashes. For the most common types of crashes, what were the most common types of reports produced. My partner and I thought fatality was going to have a bigger impact, but to our surprise it had the least impact.
 
 ###Most Common Types of Crash Type based on Surface Condition
 ```{r}
@@ -121,9 +129,11 @@ for(i in 1:length(yCol))
   colnames(z)[i] = yCol[i]
 }
 
-par(mar=c(1,.01,2,.01))
-plot(z, las=1,col="firebrick")
+par(mar=c(3,.01,3,.01))
+plot(z, las=1,col="firebrick", main=" ")
 ```
+
+We had analyzed most common crash types, when they happen the most, if weather played a big part and what were the most common report times by crash.  We also got curious if surface condition played a factor.  Based on the most crash types, what were the surface condition, and if surface condtion played a role.
 
 
 
