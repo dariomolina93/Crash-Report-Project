@@ -25,9 +25,10 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=FALSE)
 
 ```{r }
 #File locaiton on Dario's Macine
-dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
+#dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
 #Address on Evert's Machine
-#dat = read.csv("/Users/evert/Dropbox/School/Assignments/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
+
+dat = read.csv("/Users/evert/Dropbox/School/Assignments/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
 
 ```
 
@@ -137,23 +138,84 @@ dat.sub2 <- subset(dat_bi_daf, Driver.Distracted.By == "NOT DISTRACTED")
 
 dat.sub <- rbind(dat.sub1,dat.sub2)
 
-#formating the Crash.Date.Time Column
-dat.sub$Crash.Date.Time <- as.POSIXlt(as.character(dat.sub$Crash.Date.Time), format = "%m/%d/%Y %I:%M:%S %p")
 
 ```
 
-###Bicyle Accidents Over the Year
+###Bicyle-Involved Accidents Over the Year
+To start, we were intrested in accidents involving bicycles.  We decided to only look at the incidents in which the driver was at fault and not distracted because these situations are the ones where we can hopefully correct.  This gave us almost 200 data points to analyze.  We did some inital plots to try and find some pattern to these accidents.This first graph shows the total number of accidents that occured for each month.
+
 ```{r }
 par(mar=c(2,9,2,2))
 x =table(substr(dat.sub$Crash.Date.Time,1,2))
 names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
-barplot(x, las = 1, col="firebrick")
+barplot(x, las = 1, col="blue4", main="Num. of Accidents Per Month")
 ```
 
-###Frequency of Crashes Over the Day
+Not too surprisingly, the amount of crashes increases throughout the year as the weather is more pleasurable and dips down during the winter season.
+
+###Frequency of Bicycle-Involved Crashes Over the Day
+After the frist graph, we wondered if the number crashes would also increase during times of heavy traffic during a day, such as when people are commuting to/from work/school.
+
 ```{r}
+#formating the Crash.Date.Time Column
+dat.sub$Crash.Date.Time <- as.POSIXlt(as.character(dat.sub$Crash.Date.Time), format = "%m/%d/%Y %I:%M:%S %p")
 par(mar=c(4,2.5,2,2))
 y = table(substr(dat.sub$Crash.Date.Time,12,13))
 names(y) = c("12am","1am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm")
-barplot(y,las=1,col = "firebrick")
+barplot(y,las=1,col = "blue4",main="Total Numb. of Accidents Per Each Hour", xlab = "Hour")
+```
+
+The graph confirmed our inital suspisions by showing that the number of crashes spiked during common comute times.
+
+###Location of Bicycle-Involved Crashes
+
+Next, we decided to see if we could gain any insights in regards to where these accidents happen so we plotted them onto a map of the county.
+
+```{r results='hide', message=FALSE, warning=FALSE}
+library(ggmap)
+map = get_map(c(-77.08025,39.07991),maptype = "road",zoom=11)
+p = ggmap(map)
+p = p + geom_point(data=dat.sub, aes(x=Longitude,y=Latitude),color="blue4",size=3)
+print(p)
+
+```
+
+Although not too obvious from the small graph, it seemed to indicate that a significant amount of the incidents occured at or near an intersection.
+
+###Most Common Type of Vehicle Movement in Bicycle-Involved Accidents
+Based on the results of the previous map, we decided to graph the movement of the vehicle.
+
+```{r}
+par(mar=c(2,13,2,2))
+barplot(head(sort(table(dat.sub$Vehicle.Movement),decreasing = TRUE)),col="blue4",las=1,horiz = TRUE,main="Vehicle Movement")
+```
+
+From the plot, we learned that about 1/3 of the incidents involved the vehicle making some sort of turn.
+
+###Location of Incidents by Vehicle Movement
+
+Finally, we decided to generalize the vehicle movement category into four categories in order to simplify maping the points. The turning sub-category indicates incidents in which the vehicle was making any type of turn (left,right,U), the accelerating sub-category shows incidents where the vehicle was either changing speed (slowing dow/speeding up) or changing lanes (including merging into traffic).' 
+
+```{r results='hide', message=FALSE, warning=FALSE}
+
+turning=c("MAKING LEFT TURN", "MAKING RIGHT TURN","MAKING U TURN","RIGHT TURN ON RED")
+
+acc = c("ACCELERATING","ENTERING TRAFFIC LANE","STARTING FROM PARKED","STARTING FROM PARKED","STARTING FROM LANE", "SLOWING OR STOPPING","CHANGING LANES")
+
+other = c("BACKING","SKIDDING", "PASSING" , "MOVING CONSTANT SPEED")
+
+stat = c("PARKED","STOPPED IN TRAFFIC LANE")
+
+dat.sub$Vehicle.Movement[dat.sub$Vehicle.Movement %in% turning] <- "TURNING"
+dat.sub$Vehicle.Movement[dat.sub$Vehicle.Movement %in% acc] <- "ACCELERATING"
+dat.sub$Vehicle.Movement[dat.sub$Vehicle.Movement %in% other] <- "OTHER"
+dat.sub$Vehicle.Movement[dat.sub$Vehicle.Movement %in% stat] <- "STATIONARY"
+
+
+map = get_map(c(-77.08025,39.07991),maptype = "road",zoom=11)
+p = ggmap(map)
+p = p + geom_point(data=dat.sub, aes(x=Longitude,y=Latitude, color = Vehicle.Movement),size=3)
+
+print(p)
+
 ```
