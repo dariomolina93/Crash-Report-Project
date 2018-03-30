@@ -73,3 +73,14 @@ for(i in 1:length(yCol))
 
 par(mar=c(1,.01,2,.01))
 plot(z, las=1,col="firebrick")
+
+
+dat_bi_daf = dat[dat$Related.Non.Motorist == "BICYCLIST" & dat$Driver.At.Fault == "Yes",]
+
+dat.sub1 <- subset(dat_bi_daf, Driver.Distracted.By == "LOOKED BUT DID NOT SEE")
+dat.sub2 <- subset(dat_bi_daf, Driver.Distracted.By == "NOT DISTRACTED")
+
+dat.sub <- rbind(dat.sub1,dat.sub2)
+
+#formating the Crash.Date.Time Column
+dat.sub$Crash.Date.Time <- as.POSIXlt(as.character(dat.sub$Crash.Date.Time), format = "%m/%d/%Y %I:%M:%S %p")
