@@ -4,14 +4,6 @@ author: "Dario Molina, Evert Rodriguez"
 date: "March 28, 2018"
 output: html_document
 ---
-<!--
-Intro: explain what you will do in a sentence or two
-Data: Explain in a few sentence where the data comes from, what it is about, etc.
-Initial data exploration
-Data cleaning and preprocessing
-Data exploration and visualization
-Conclusions.  One paragraph about what you learned, issues you faced, etc.
--->
 
 ###Introduction
 In this project, we will look into Car Collision Report data, and analyze in detail what this data represents.  We will make graphs, to visually analyze and find patterns, make predictions, and come to a better understanding on how we can reduce the amount of car collisions.
@@ -56,78 +48,6 @@ for(i in names(dat))
 
 ```
 
-###Most Common Type of Crashes
-```{r}
-par(mar=c(3,14,2,2))
-x = table(dat$Collision.Type)
-barplot(x[x > 5000], horiz=TRUE, las=1, main="Most common types of car crash", col="firebrick")
-```
-
-###Amount of Crashes per Month
-```{r}
-#amount of crashes per month
-x =table(substr(dat$Crash.Date.Time,1,2))
-names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
-barplot(x, las = 1, col="firebrick")
-```
-
-###Most Common Types of Crashes Under Different Types of Weather
-```{r}
-z = table(dat$Weather,dat$Collision.Type)
-y= z[,c("STRAIGHT MOVEMENT ANGLE","SINGLE VEHICLE","SAME DIRECTION RIGHT TURN","SAME DIRECTION LEFT TURN","HEAD ON LEFT TURN","OTHER")]
-y = y[c("CLEAR","CLOUDY","RAINING"),]
-
-yCol = c("STRGT-MV-AGL", "ONE-CAR","SM-DIR-R-TR","SM-DIR-L-TR","HD-ON-L-TR","OTHER")
-for(i in 1:length(yCol))
-{
-  colnames(y)[i] = yCol[i]
-}
-y = y[,c("STRGT-MV-AGL","ONE-CAR","HD-ON-L-TR","OTHER")]
-par(mar=c(1,.5,2,.3))
-plot(y, col="firebrick")
-```
-
-
-###Different Types of Crashes, Most Common Report Type
-```{r}
-#Whattypes of crash types caused the most reports by category
-
-  #remove coluns from crash type 
-y = table(dat$ACRS.Report.Type, dat$Collision.Type)
-x= c("STRAIGHT MOVEMENT ANGLE","SINGLE VEHICLE","SAME DIR REAR END","OTHER","HEAD ON LEFT TURN")
-y = y[,x]
-
-yCol = c("STRGT-MV-AGL", "ONE-CAR","SM-DIR-R-ED","OTHER","HD-ON-L-TR")
-for(i in 1:length(yCol))
-{
-  colnames(y)[i] = yCol[i]
-}
-par(mar=c(0.5,2,1,2))
-plot(y, las=1,col="firebrick")
-```
-
-###Most Common Types of Crash Type based on Surface Condition
-```{r}
-#crashes by surface condition
-yCol = c("HD-ON-L-TR","OTHER","SM-DIR-R-ED","SM-DIR-SDWE","ONE-CAR","STRGT-MV-AGL")
-
-x = table(dat$Surface.Condition,dat$Collision.Type)
-
-
-cols = c("HEAD ON LEFT TURN","OTHER","SAME DIR REAR END","SAME DIRECTION SIDESWIPE","SINGLE VEHICLE","STRAIGHT MOVEMENT ANGLE")
-rows = c("DRY","WET","SNOW")
-z = x[rows,cols]
-
-for(i in 1:length(yCol))
-{
-  colnames(z)[i] = yCol[i]
-}
-
-par(mar=c(1,.01,2,.01))
-plot(z, las=1,col="firebrick")
-```
-
-###More Data Cleaning and Pre-Prosessing
 Creating a new dataframe containing incidents in which a bicyclist was involved and the driver was at fault and NOT distracted. (194 data points)
 
 ```{r }
@@ -138,9 +58,83 @@ dat.sub2 <- subset(dat_bi_daf, Driver.Distracted.By == "NOT DISTRACTED")
 
 dat.sub <- rbind(dat.sub1,dat.sub2)
 
+#formating the Crash.Date.Time Column
+dat.sub$Crash.Date.Time <- as.POSIXlt(as.character(dat.sub$Crash.Date.Time), format = "%m/%d/%Y %I:%M:%S %p")
 
 ```
 
+
+Before we started analyzing the data in detail, and since we are dealing with crash report tipe, we wanted to figure out which crash types were the most common.
+
+###Most Common Types of Crashes
+```{r}
+par(mar=c(3,14,2,2))
+x = table(dat$Collision.Type)
+barplot(x[x > 5000], horiz=TRUE, las=1, main=" ", col="firebrick")
+```
+
+From the graph, we realized that the most common type of car crash is same direction rear end.  Which we assumed it would be either same direction rear end, or face to face collision like when two cars in opposite direction crash.
+
+
+
+
+We then thought, since we know what are the most common types of car crash, what time during the year do they happen the most? In what month are car crashes most common? Do they rely on seasons, by festivities?
+
+###Amount of Crashes per Month
+```{r}
+#amount of crashes per month
+x =table(substr(dat$Crash.Date.Time,1,2))
+names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
+barplot(x, las = 1, col="firebrick")
+```
+
+From the graph we can see January is when most crashes happen. We had previously anticipated that perhaps most crashes would happen in the summer, since students are out from school, people go out on vacation, perhaps June and July would be the highest. But to our surprise January had the most.  New Year resolution, new year, new car crash.
+
+
+We were interested in figuring out, from the accidents reported, what were the most common types of report types.  Because of the crashes, did many more fatalities happened than property damage? Which type of crash happend had the most different types of report types?
+
+###Different Types of Crashes, Most Common Report Type
+```{r}
+ 
+y = table(dat$ACRS.Report.Type, dat$Collision.Type)
+x= c("STRAIGHT MOVEMENT ANGLE","SINGLE VEHICLE","SAME DIR REAR END","OTHER","HEAD ON LEFT TURN")
+y = y[,x]
+
+par(mar=c(3,2,3,2))
+plot(y, las=1,col="firebrick", main=" ")
+```
+
+After exploring the data further into detail, we were interested in finding out for the most common types of crashes, what were the most common types of reports produced. My partner and I thought fatality was going to have a bigger impact, but to our surprise it had the least impact.
+
+
+Since we had analyzed the different most common types of car crash, and what time in the year they happen the most, we were curious to see under what kind of weather, what types of car crashes happend the most.
+
+
+###Most Common Types of Crashes Under Different Types of Weather
+```{r}
+z = table(dat$Weather,dat$Collision.Type)
+y= z[,c("STRAIGHT MOVEMENT ANGLE","SINGLE VEHICLE","SAME DIR REAR END","SAME DIRECTION RIGHT TURN","SAME DIRECTION LEFT TURN","HEAD ON LEFT TURN","OTHER")]
+y = y[c("CLEAR","CLOUDY","RAINING"),]
+
+par(mar=c(4,.5,4,.3))
+plot(y, main=" ", col="firebrick", las=1)
+```
+
+From the graph derived from the data, we were able to identify that same direction rear end, had the most types of crashes under clear weather.  And clear weather overall was the most common type of weather were car crashes happened.  Personally, my team mate and I thought rainy weather would be the most common type of weather where most crashes would happen since the rain can make tires have less grip on the road and be more prone to accidents.
+
+We explored the data in greater detail for we wanted to figure if the surface condition when a car crash, correlated with the type of weather when a crash was reported.  Since clear weather was most common, we would expect to have dry surface to be most common.  We should expect a direct correlation between weather and surface condtion.
+
+###Most Common Types of Crash Type based on Surface Condition
+```{r}
+#crashes by surface condition
+x = table(dat$Surface.Condition,dat$Collision.Type)
+
+
+cols = c("HEAD ON LEFT TURN","OTHER","SAME DIR REAR END","SAME DIRECTION SIDESWIPE","SINGLE VEHICLE","STRAIGHT MOVEMENT ANGLE")
+rows = c("DRY","WET","SNOW")
+z = x[rows,cols]
+
+<<<<<<< HEAD
 ###Bicyle-Involved Accidents Over the Year
 To start, we were intrested in accidents involving bicycles.  We decided to only look at the incidents in which the driver was at fault and not distracted because these situations are the ones where we can hopefully correct.  This gave us almost 200 data points to analyze.  We did some inital plots to try and find some pattern to these accidents.This first graph shows the total number of accidents that occured for each month.
 
@@ -219,3 +213,11 @@ p = p + geom_point(data=dat.sub, aes(x=Longitude,y=Latitude, color = Vehicle.Mov
 print(p)
 
 ```
+=======
+par(mar=c(3,.01,3,.01))
+plot(z, las=1,col="firebrick", main=" ")
+```
+
+Based on the graph, our expectations were met.  And we also noted how same direction rear end still was the most common type of crash under the different types of surface condtion. We also wanted to verify that wet surface condtion had the same correlation to rainy weather.
+ 
+>>>>>>> 9af58cd4f1de427dcf337ba06a3cf28db7ff732c
