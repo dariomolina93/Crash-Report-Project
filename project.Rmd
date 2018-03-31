@@ -16,7 +16,7 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 
 
 ```{r }
-#File locaiton on Dario's Macine
+#File locaiton on Dario's Machine
 #dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
 #Address on Evert's Machine
 
@@ -62,7 +62,7 @@ dat.sub <- rbind(dat.sub1,dat.sub2)
 ```
 
 
-Before we started analyzing the data in detail, and since we are dealing with crash report tipe, we wanted to figure out which crash types were the most common.
+Before we started analyzing the data in detail, and since we are dealing with crash report type, we wanted to figure out which crash types were the most common.
 
 ###Most Common Types of Crashes
 ```{r }
@@ -137,7 +137,7 @@ Based on the graph, our expectations were met.  And we also noted how same direc
 
 ###Bicyle-Involved Accidents Over the Year
 
-To start, we were intrested in accidents involving bicycles.  We decided to only look at the incidents in which the driver was at fault and not distracted because these situations are the ones where we can hopefully correct.  This gave us almost 200 data points to analyze.  We did some inital plots to try and find some pattern to these accidents.This first graph shows the total number of accidents that occured for each month.
+For this section, we were intrested in accidents involving bicycles.  We decided to only look at the incidents in which the driver was at fault and not distracted because these situations are the ones where we can hopefully correct.  This gave us almost 200 data points to analyze.  We did some inital plots to try and find some pattern to these accidents.This first graph shows the total number of accidents that occured for each month.
 
 ```{r}
 par(mar=c(2,9,2,2))
@@ -146,10 +146,10 @@ names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.
 barplot(x, las = 1, col="blue4", main="Num. of Accidents Per Month")
 ```
 
-Not too surprisingly, the amount of crashes increases throughout the year as the weather is more pleasurable and dips down during the winter season.
+Not too surprisingly, the amount of crashes increases throughout the year as the weather is more suitable for riding bicyles, and dips down during the winter season.
 
 ###Frequency of Bicycle-Involved Crashes Over the Day
-After the frist graph, we wondered if the number crashes would also increase during times of heavy traffic during a day, such as when people are commuting to/from work/school.
+After the frist graph, we wondered if the number crashes would also increase during times of heavy traffic during a day, such as when people are commuting to or from work/school.
 
 ```{r }
 #formating the Crash.Date.Time Column
@@ -185,11 +185,11 @@ par(mar=c(2,13,2,2))
 barplot(head(sort(table(dat.sub$Vehicle.Movement),decreasing = TRUE)),col="blue4",las=1,horiz = TRUE,main="Vehicle Movement")
 ```
 
-From the plot, we learned that about 1/3 of the incidents involved the vehicle making some sort of turn.
+From the plot, we learned that at least about 1/3 of the incidents involved the vehicle making some sort of turn.
 
 ###Location of Incidents by Vehicle Movement
 
-Finally, we decided to generalize the vehicle movement category into four categories in order to simplify maping the points. The turning sub-category indicates incidents in which the vehicle was making any type of turn (left,right,U), the accelerating sub-category shows incidents where the vehicle was either changing speed (slowing dow/speeding up) or changing lanes (including merging into traffic).
+Finally, we decided to generalize the vehicle movement category into four categories in order to simplify maping the points. The turning sub-category indicates incidents in which the vehicle was making any type of turn (left,right,U,etc.), the accelerating sub-category shows incidents where the vehicle was either changing speed (slowing dow/speeding up) or changing lanes (including merging into traffic).
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 
@@ -197,9 +197,9 @@ turning=c("MAKING LEFT TURN", "MAKING RIGHT TURN","MAKING U TURN","RIGHT TURN ON
 
 acc = c("ACCELERATING","ENTERING TRAFFIC LANE","STARTING FROM PARKED","STARTING FROM PARKED","STARTING FROM LANE", "SLOWING OR STOPPING","CHANGING LANES")
 
-other = c("BACKING","SKIDDING", "PASSING" , "MOVING CONSTANT SPEED")
-
 stat = c("PARKED","STOPPED IN TRAFFIC LANE")
+
+other = c("BACKING","SKIDDING", "PASSING" , "MOVING CONSTANT SPEED")
 
 dat.sub$Vehicle.Movement[dat.sub$Vehicle.Movement %in% turning] <- "TURNING"
 dat.sub$Vehicle.Movement[dat.sub$Vehicle.Movement %in% acc] <- "ACCELERATING"
@@ -215,5 +215,6 @@ print(p)
 
 ```
 
+From this last map, we observed that accidents where the vehicle was turning seem to be a bit more prone to clustering up, at least more than the other categories.  This might indicate that there are certain locations or intersections in the county where it might be dificult to see a bicyclist, or a road where there is no designated bicycle lane.
 
  
