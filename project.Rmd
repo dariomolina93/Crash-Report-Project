@@ -1,5 +1,5 @@
 ---
-title: "Project 1"
+title: "An Analysis of Car and Bicycle Accidents in Montgomery County, Maryland"
 author: "Dario Molina, Evert Rodriguez"
 date: "March 28, 2018"
 output: html_document
@@ -8,7 +8,7 @@ output: html_document
 ###Introduction
 In this project, we will look into Car Collision Report data, and analyze in detail what this data represents.  We will make graphs, to visually analyze and find patterns, make predictions, and come to a better understanding on how we can reduce the amount of car collisions.
 
-The data is obtained from dataMontgomery(https://data.montgomerycountymd.gov/Public-Safety/Crash-Reporting-Drivers-Data/mmzv-x632/data), a website that keeps records from the County of Maryland.
+The data is obtained from dataMontgomery(https://data.montgomerycountymd.gov/Public-Safety/Crash-Reporting-Drivers-Data/mmzv-x632/data), a website that keeps records from the County of Montgomery in Maryland.  The data has more than 67,000 enteries, each being a driver.  The data has been collected from January 1, 2015 and is updated weekly.  It has 32 columns, mostly plain-text data about the circumstance involving the accidents, such as location, vehicle type, vehicle movement, type of road and date of accident. One thing to take into account is that some of the information is self-reported and has not been varafied by a neutral  party.
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
@@ -38,17 +38,23 @@ for( i in x)
 
 ```
 
-Removing rest of empty blanks and "N/A" in data set to N/A
-```{rm }
+We noticed that there were some columns with almost no data that were either empty to had an "N/A" string. We decided to remove the empty blanks and "N/A" in data set and replace with to N/A value
+```{r }
 #assignig rest values to NA
 for(i in names(dat))
 {
   dat[[i]][dat[[i]] == "" | dat[[i]] == "N/A"] = NA
 }
 
-```
 
-Creating a new dataframe containing incidents in which a bicyclist was involved and the driver was at fault and NOT distracted. (194 data points)
+
+na_count <-sapply(dat, function(y) sum(length(which(is.na(y)))))
+na_count <- data.frame(sort(na_count,decreasing = TRUE))
+print(head(na_count,7))
+```
+We noted that nearly all of the enteries (more than 50K) did not have a value for Non-Moterist Substance Abuse, Related Non-Motorist, Off-Road Description, Municipality, Circumstance so we decided to focus on questions where these enteries were not as relevant.
+
+Creating a new dataframe containing incidents in which a bicyclist was involved and the driver was at fault and NOT distracted. (194 data points)  We also created a seperate dataframe without this subset.
 
 ```{r }
 dat_bi_daf = dat[dat$Related.Non.Motorist == "BICYCLIST" & dat$Driver.At.Fault == "Yes",]
@@ -57,7 +63,7 @@ dat.sub1 <- subset(dat_bi_daf, Driver.Distracted.By == "LOOKED BUT DID NOT SEE")
 dat.sub2 <- subset(dat_bi_daf, Driver.Distracted.By == "NOT DISTRACTED")
 
 dat.sub <- rbind(dat.sub1,dat.sub2)
-
+dat.subwb = dat[!(dat$Report.Number %in% dat.sub$Report.Number),]
 
 ```
 
@@ -164,28 +170,40 @@ The graph confirmed our inital suspisions by showing that the number of crashes 
 
 ###Location of Bicycle-Involved Crashes
 
-Next, we decided to see if we could gain any insights in regards to where these accidents happen so we plotted them onto a map of the county.
+Next, we decided to see if we could gain any insights in regards to where these accidents happen so we plotted them onto a map of the county.  Once again, we compared the map of bicycle related accidents to the rest of the data.
 
 ```{r results='hide', message=FALSE, warning=FALSE}
+
 library(ggmap)
+
+par(mfrow=c(2,2))
 map = get_map(c(-77.08025,39.07991),maptype = "road",zoom=11)
 p = ggmap(map)
 p = p + geom_point(data=dat.sub, aes(x=Longitude,y=Latitude),color="blue4",size=3)
 print(p)
+
+map = get_map(c(-77.08025,39.07991),maptype = "road",zoom=13)
+j = ggmap(map)
+j = j + geom_point(data=dat.subwb, aes(x=Longitude,y=Latitude),color="blue4",size=3)
+print(j)
 
 ```
 
 Although not too visable from the small graph, it seemed to indicate that a significant amount of the incidents occured at or near an intersection.
 
 ###Most Common Type of Vehicle Movement in Bicycle-Involved Accidents
-Based on the results of the previous map, we decided to graph the movement of the vehicle.
+Based on the results of the previous map, we decided to graph the movement of the vehicle. To better get an insight into this, it was compared to the movement of the vehicle in the overall dataset.
 
 ```{r}
+par(mfrow=c(2,1))
 par(mar=c(2,13,2,2))
-barplot(head(sort(table(dat.sub$Vehicle.Movement),decreasing = TRUE)),col="blue4",las=1,horiz = TRUE,main="Vehicle Movement")
+barplot(head(sort(table(dat.sub$Vehicle.Movement),decreasing = TRUE)),col="blue4",las=1,horiz = TRUE,main="Vehicle Movement w/ Bicycle Involvment")
+
+par(mar=c(2,13,2,2))
+barplot(head(sort(table(dat.subwb$Vehicle.Movement),decreasing = TRUE)),col="blue4",las=1,horiz = TRUE,main="Vehicle Movement")
 ```
 
-From the plot, we learned that at least about 1/3 of the incidents involved the vehicle making some sort of turn.
+From the plot, we learned that at least about 1/3 of the incidents involved the vehicle making some sort of turn when a bicylce is involved.  This is in contrast to the rest of dataset in which only one of the top six vehicle movements involves the vehicle during a turn.
 
 ###Location of Incidents by Vehicle Movement
 
@@ -217,4 +235,3 @@ print(p)
 
 From this last map, we observed that accidents where the vehicle was turning seem to be a bit more prone to clustering up, at least more than the other categories.  This might indicate that there are certain locations or intersections in the county where it might be dificult to see a bicyclist, or a road where there is no designated bicycle lane.
 
- 
