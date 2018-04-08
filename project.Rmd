@@ -17,10 +17,10 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 
 ```{r }
 #File locaiton on Dario's Machine
-#dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
+dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
 #Address on Evert's Machine
 
-dat = read.csv("/Users/evert/Dropbox/School/Assignments/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
+#dat = read.csv("/Users/evert/Dropbox/School/Assignments/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
 
 ```
 
@@ -136,6 +136,7 @@ x = table(dat$Surface.Condition,dat$Collision.Type)
 cols = c("HEAD ON LEFT TURN","OTHER","SAME DIR REAR END","SAME DIRECTION SIDESWIPE","SINGLE VEHICLE","STRAIGHT MOVEMENT ANGLE")
 rows = c("DRY","WET","SNOW")
 z = x[rows,cols]
+plot(z, main=" ", las=1, col="firebrick")
 
 ```
 
