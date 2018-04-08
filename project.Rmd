@@ -34,7 +34,7 @@ Most of the missing data was in the form of empty blanks or the string "N/A".  W
 ```{r }
 x = c("Off.Road.Description", "Related.Non.Motorist", "Non.Motorist.Substance.Abuse")
 
-#assigning value 0 to "" in x vector
+#assigning value 0 to "" in columns "Off.Road.Description", "Related.Non.Motorist", "Non.Motorist.Substance.Abuse"
 for( i in x)
 {
   dat[[i]][dat[[i]] == ""] = 0
