@@ -1,5 +1,5 @@
-dat = read.csv("/Users/evert/Dropbox/School/Assignments/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
-
+#dat = read.csv("/Users/evert/Dropbox/School/Assignments/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
+dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Reporting_-_Drivers_Data.csv",stringsAsFactors=FALSE)
 x = c("Off.Road.Description", "Related.Non.Motorist", "Non.Motorist.Substance.Abuse")
 
 apply(dat,2, function(x) sum(is.na(x)))
@@ -84,3 +84,5 @@ dat.sub <- rbind(dat.sub1,dat.sub2)
 
 #formating the Crash.Date.Time Column
 dat.sub$Crash.Date.Time <- as.POSIXlt(as.character(dat.sub$Crash.Date.Time), format = "%m/%d/%Y %I:%M:%S %p")
+
+

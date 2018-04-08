@@ -1,5 +1,5 @@
 ---
-title: "An Analysis of Car and Bicycle Accidents in Montgomery County, Maryland"
+title: "An Analysis of Car Collisions and Bicycle Related Accidents in Montgomery County, Maryland"
 author: "Dario Molina, Evert Rodriguez"
 date: "March 28, 2018"
 output: html_document
@@ -8,7 +8,7 @@ output: html_document
 ###Introduction
 In this project, we will look into Car Collision Report data, and analyze in detail what this data represents.  We will make graphs, to visually analyze and find patterns, make predictions, and come to a better understanding on how we can reduce the amount of car collisions.
 
-The data is obtained from dataMontgomery(https://data.montgomerycountymd.gov/Public-Safety/Crash-Reporting-Drivers-Data/mmzv-x632/data), a website that keeps records from the County of Montgomery in Maryland.  The data has more than 67,000 enteries, each being a driver.  The data has been collected from January 1, 2015 and is updated weekly.  It has 32 columns, mostly plain-text data about the circumstance involving the accidents, such as location, vehicle type, vehicle movement, type of road and date of accident. One thing to take into account is that some of the information is self-reported and has not been varafied by a neutral  party.
+The data is obtained from dataMontgomery(https://data.montgomerycountymd.gov/Public-Safety/Crash-Reporting-Drivers-Data/mmzv-x632/data), a website that keeps records from the County of Montgomery in Maryland.  The data has more than 67,000 entries, each being a driver.  The data has been collected from January 1, 2015 and is updated weekly.  It has 32 columns, mostly plain-text data about the circumstance involving the accidents, such as location, vehicle type, vehicle movement, type of road and date of accident. One thing to take into account is that some of the information is self-reported and has not been verified by a neutral party.
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
@@ -26,7 +26,11 @@ dat = read.csv("/Users/dariomolina/DataScience/Crash-Report-Project/Crash_Report
 
 ###Data cleaning and preprocessing
 
-Changing empty blanks to 0 in Off.Road.Description, Related.Non.Motorist, Non.Motorist.Substance.Abuse columns
+Upon looking at the data, we realized that the columns Off.Road.Description, Related.Non.Motorist, and Non.Motorist.Substance.Abuse were all empty. Our first thought was that data was missing and we needed to replace the empty blanks with the value NA.  But with further research we realized that the blanks in these columns represented a zero value.  To put into perspective, an empty blank in OFF.Road.Description meant that there was no road description available.  A blank in Related.Non.Motorist meant there was no non related motorist. With this knowledge in mind, the empty values in this columns to the integer value 0.
+
+In total, there was about an 8% of missing data.  The column Route.Type had 0.29351% in missing data. Road.Name was missing 0.28107%, Cross.Street.Type was missing 0.29365%, Cross.Street.Name was missing 0.28122%, Municipality was missing 2.81013%, Collision.Type was missing 0.00878%, Weather was missing 0.23114%, Surface.Condition was missing 0.36281%, Light was missing 0.02539%, Traffic.Control was missing 0.47553%, Driver.Substance.Abuse was missing 0.51511%, Non.Motorist.Substance.Abuse was missing 0.01827%, Circumstance was missing 2.51581%, Drivers.License.State was missing 0.12938%, Vehicle.Damage.Extent was missing 0.00465%, Vehicle.Body.Type was missing 0.04039%, and Vehicle.Movement was missing 0.00608% of data.
+
+Most of the missing data was in the form of empty blanks or the string "N/A".  What we decided to do was convert all the empty blanks and the "N/A" into the value NA.
 ```{r }
 x = c("Off.Road.Description", "Related.Non.Motorist", "Non.Motorist.Substance.Abuse")
 
@@ -36,10 +40,7 @@ for( i in x)
   dat[[i]][dat[[i]] == ""] = 0
 }
 
-```
 
-We noticed that there were some columns with almost no data that were either empty to had an "N/A" string. We decided to remove the empty blanks and "N/A" in data set and replace with to N/A value
-```{r }
 #assignig rest values to NA
 for(i in names(dat))
 {
@@ -51,12 +52,7 @@ for(i in names(dat))
 na_count <-sapply(dat, function(y) sum(length(which(is.na(y)))))
 na_count <- data.frame(sort(na_count,decreasing = TRUE))
 print(head(na_count,7))
-```
-We noted that nearly all of the enteries (more than 50K) did not have a value for Non-Moterist Substance Abuse, Related Non-Motorist, Off-Road Description, Municipality, Circumstance so we decided to focus on questions where these enteries were not as relevant.
 
-Creating a new dataframe containing incidents in which a bicyclist was involved and the driver was at fault and NOT distracted. (194 data points)  We also created a seperate dataframe without this subset.
-
-```{r }
 dat_bi_daf = dat[dat$Related.Non.Motorist == "BICYCLIST" & dat$Driver.At.Fault == "Yes",]
 
 dat.sub1 <- subset(dat_bi_daf, Driver.Distracted.By == "LOOKED BUT DID NOT SEE")
@@ -144,13 +140,13 @@ Based on the graph, our expectations were met.  And we also noted how same direc
 
 ###Bicyle-Involved Accidents Over the Year
 
-For this section, we were intrested in accidents involving bicycles.  We decided to only look at the incidents in which the driver was at fault and not distracted because these situations are the ones where we can hopefully correct.  This gave us almost 200 data points to analyze.  We did some inital plots to try and find some pattern to these accidents.This first graph shows the total number of accidents that occured for each month.
+We also got curious and interested in accidents involving bicycles.  We decided to only look at the incidents in which the driver was at fault and not distracted because these situations are the ones where we can hopefully correct.  This gave us almost 200 data points to analyze.  We did some inital plots to try and find some pattern to these accidents.This first graph shows the total number of accidents that occured for each month.
 
 ```{r}
 par(mar=c(2,9,2,2))
 x =table(substr(dat.sub$Crash.Date.Time,1,2))
 names(x) = c("Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec.")
-barplot(x, las = 1, col="blue4", main="Num. of Accidents Per Month")
+barplot(x, las = 1, col="firebrick", main="Num. of Accidents Per Month")
 ```
 
 Not too surprisingly, the amount of crashes increases throughout the year as the weather is more suitable for riding bicyles, and dips down during the winter season.
@@ -164,7 +160,7 @@ dat.sub$Crash.Date.Time <- as.POSIXlt(as.character(dat.sub$Crash.Date.Time), for
 par(mar=c(4,2.5,2,2))
 y = table(substr(dat.sub$Crash.Date.Time,12,13))
 names(y) = c("12am","1am","5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm")
-barplot(y,las=1,col = "blue4",main="Total Numb. of Accidents Per Each Hour", xlab = "Hour")
+barplot(y,las=1,col = "firebrick",main="Total Numb. of Accidents Per Each Hour", xlab = "Hour")
 ```
 
 The graph confirmed our inital suspisions by showing that the number of crashes spiked during common comute times.
@@ -180,17 +176,17 @@ library(ggmap)
 par(mfrow=c(2,2))
 map = get_map(c(-77.08025,39.07991),maptype = "road",zoom=11)
 p = ggmap(map)
-p = p + geom_point(data=dat.sub, aes(x=Longitude,y=Latitude),color="blue4",size=3)
+p = p + geom_point(data=dat.sub, aes(x=Longitude,y=Latitude),color="firebrick",size=3)
 print(p)
 
 map = get_map(c(-77.08025,39.07991),maptype = "road",zoom=13)
 j = ggmap(map)
-j = j + geom_point(data=dat.subwb, aes(x=Longitude,y=Latitude),color="blue4",size=3)
+j = j + geom_point(data=dat.subwb, aes(x=Longitude,y=Latitude),color="firebrick",size=3)
 print(j)
 
 ```
 
-Although not too visable from the small graph, it seemed to indicate that a significant amount of the incidents occured at or near an intersection.
+Although not too visible from the small graph, it seemed to indicate that a significant amount of the incidents occurred at or near an intersection.
 
 ###Most Common Type of Vehicle Movement in Bicycle-Involved Accidents
 Based on the results of the previous map, we decided to graph the movement of the vehicle. To better get an insight into this, it was compared to the movement of the vehicle in the overall dataset.
@@ -198,10 +194,10 @@ Based on the results of the previous map, we decided to graph the movement of th
 ```{r}
 par(mfrow=c(2,1))
 par(mar=c(2,13,2,2))
-barplot(head(sort(table(dat.sub$Vehicle.Movement),decreasing = TRUE)),col="blue4",las=1,horiz = TRUE,main="Vehicle Movement w/ Bicycle Involvment")
+barplot(head(sort(table(dat.sub$Vehicle.Movement),decreasing = TRUE)),col="firebrick",las=1,horiz = TRUE,main="Vehicle Movement w/ Bicycle Involvment")
 
 par(mar=c(2,13,2,2))
-barplot(head(sort(table(dat.subwb$Vehicle.Movement),decreasing = TRUE)),col="blue4",las=1,horiz = TRUE,main="Vehicle Movement")
+barplot(head(sort(table(dat.subwb$Vehicle.Movement),decreasing = TRUE)),col="firebrick",las=1,horiz = TRUE,main="Vehicle Movement")
 ```
 
 From the plot, we learned that at least about 1/3 of the incidents involved the vehicle making some sort of turn when a bicylce is involved.  This is in contrast to the rest of dataset in which only one of the top six vehicle movements involves the vehicle during a turn.
@@ -234,5 +230,10 @@ print(p)
 
 ```
 
-From this last map, we observed that accidents where the vehicle was turning seem to be a bit more prone to clustering up, at least more than the other categories.  This might indicate that there are certain locations or intersections in the county where it might be dificult to see a bicyclist, or a road where there is no designated bicycle lane.
+From this last map, we observed that accidents where the vehicle was turning seem to be a bit more prone to clustering up, at least more than the other categories.  This might indicate that there are certain locations or intersections in the county where it might be difficult to see a bicyclist, or a road where there is no designated bicycle lane.
+
+###Conclusion
+In conclusion, we have analyzed different scenarios of car collisions obtained from the data of Montgomery County, Maryland.  From the data, we learned that the most common and frequent type of collision is same direction rear end. Many of the collision happen during the month of January, the most common type of report type is a property damage crash, and most crashes happen during clear weather.
+
+We also analyzed car callision that involved bicycle accidents.  From the data, we found out that most bicycle related accidents happen during July, as the weather is most favorable, and that most bycicle incidents happen during 5pm.  Interestingly enough, we found out that most bicycle incidents occurred at or near an intersection.  We hope with the insights from this report we can provide insight to reader and reduce the amount of car collisions and bicycle related accidents.
 
